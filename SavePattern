@@ -1,0 +1,24 @@
+      // FIRST SAVE : -------------------------------------------------------------
+  
+  
+  FILE* save = fopen("save_file.txt", "w");               // Ouverture du fichier de sauvegarde en mode écriture
+  if (save == NULL) {                                      // Message erreur si aucun fichier de sauvegarde détecté
+    printf("Erreur : Problème pour ouvrir la sauvegarde");
+    
+  }
+
+  fprintf(save, "Tab size : %d\n", taille);
+  fprintf(save, "Nbr of different(s) possible symbols : %d\n", different);
+
+// LOAD SAVE : -------------------------------------------------------------
+  
+  
+  FILE* save = fopen("save_file.txt", "r");               // Ouverture du fichier de sauvegarde en mode lecture
+  if (save == NULL) {                                      // Message erreur si aucun fichier de sauvegarde détecté
+    printf("Erreur : Problème pour ouvrir la sauvegarde");
+    return;
+  }
+
+
+  fscanf(save, "Tab size : %d\n", &taille);
+  fscanf(save, "Nbr of different(s) possible symbols : %d\n", &different);
