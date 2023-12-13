@@ -1,5 +1,10 @@
-Traitement D1 : 
+Traitement D1 :
 
+mkdir projet (+on déplace data.csv dans projet)
+(cd projet)
+cut -d';' -f2,6 data.csv >> d1.txt
+cat d1.txt
+(110,3Mo/353,3Mo)
 
 
 Traitement D2 :
@@ -15,3 +20,6 @@ Traitement T :
 
 
 Traitement S :
+
+
+awk
