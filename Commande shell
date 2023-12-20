@@ -52,7 +52,7 @@ faire script shell qui add le step id si c'est même personne
 
 Traitement D2 :
 cut -d';' -f5,6 data.csv >> d2.txt
-
+cat < d2.txt|sort -t';' -k2 (pour trier noms, et faire shell qui add les distances de la même personne)
 
 Traitement L :
 
