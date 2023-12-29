@@ -1,51 +1,18 @@
-Traitement D1 :
+Traitement D1 : 
+-->top 10 conducteurs avec le plus de trajets (on veut le nombre de trajets par personne donc par rapport à la 1ère colonne : route id)
 
 mkdir projet (+on déplace data.csv dans projet)
 (cd projet)
-cut -d';' -f2,6 data.csv >> d1.txt
-sort -n -r > d1.txt (mais que affiche)
-cat d1.txt
-(110,3Mo/353,3Mo)
 
-faire script shell qui add le step id si c'est même personne
+  cut -d';' -f2,6 data.csv | sort -n -r > d1.txt
+  cat d1.txt
+  (110,3Mo/353,3Mo)
+
+cut -d';' -f1,6 data.csv | sort -r -d -t';' -k2 > d1.txt
+--> faire script shell qui incrémente si c'est même personne && si pas même route id
 
 
-15;Alexander MEYER
-29;Aleksandra MILLER
-2;Michel PEREZ
-14;Marie MUÑOZ
-8;Nykolai ALONSO
-8;Mária SMIRNOV
-12;Petra FISCHER
-24;Christine MILLER
-11;Claude KOVÁCS
-28;Mikhail NOWAK
-13;Maksim HUBER
-4;Rosa SANTOS
-11;Vladymyr SHEVCHENKO
-18;Mario PEREZ
-7;Robert VARGA
-32;Lyubov BECKER
-21;Mariya BROWN
-17;John BONDARENKO
-1;Werner GUTIERREZ
-19;Monika MUÑOZ
-6;Sandra WILSON
-13;Anne TAYLOR
-17;Nikolay POPOVA
-5;Pavel TÓTH
-12;Christian FISCHER
-25;Patrick JIMENEZ
-8;Tatyana HANSEN
-2;Olha DIAZ
-29;Eva WEBER
-26;Mária SMITH
-3;Laura JOHANSSON
-6;Jean RODRIGUEZ
-5;Natalya SANTOS
-17;Anastasiya BROWN
-13;Yvan RAMOS
-2;Ekaterina SHEVCHENKO
+
 
 
 
