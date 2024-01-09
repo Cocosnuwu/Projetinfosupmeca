@@ -1,25 +1,19 @@
-Traitement D1 : 
--->top 10 conducteurs avec le plus de trajets (on veut le nombre de trajets par personne donc par rapport à la 1ère colonne : route id)
-
 mkdir projet (+on déplace data.csv dans projet)
 (cd projet)
 
-  cut -d';' -f2,6 data.csv | sort -n -r > d1.txt
-  cat d1.txt
-  (110,3Mo/353,3Mo)
-
+Traitement D1 : 
 cut -d';' -f1,6 data.csv | sort -r -d -t';' -k2 > d1.txt
 --> faire script shell qui incrémente si c'est même personne && si pas même route id
-
-
-
-
-
+--> tq : awk -F";" '{ ID[$2][$1] } END { for (name in ID) print name, lenght(ID[name]) }' d1.txt
+--> (marche pas ??)
 
 
 Traitement D2 :
-cut -d';' -f5,6 data.csv >> d2.txt
-cat < d2.txt|sort -t';' -k2 (pour trier noms, et faire shell qui add les distances de la même personne)
+cut -d';' -f5,6 data.csv | sort -t';' -k2 > d2.txt
+-->pour trier noms, et faire shell qui add les distances de la même personne
+--> tq: awk '+$1 { LENGHT[$3]+=$1 } END { for (NAME in LENGHT) print NAME, LENGHT[NAME] }' FS=; d2.txt
+--> (mais marche pas ??)
+
 
 Traitement L :
 
