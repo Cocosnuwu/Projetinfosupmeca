@@ -1,0 +1,201 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Arbre {
+    char nom[50];
+    int somme;
+    int equilibre;
+    struct Arbre* fg;
+    struct Arbre* fd;
+} Arbre;
+
+typedef Arbre* pArbre;
+
+// Fonction pour créer un nouvel élément dans l'arbre
+pArbre creerArbre(char nom[50], int valeur) {
+    pArbre newarbre = (pArbre)malloc(sizeof(Arbre));
+    if (newarbre != NULL) {
+        strcpy(newarbre->nom, nom);
+        newarbre->somme = valeur;
+        newarbre->fg = NULL;
+        newarbre->fd = NULL;
+        newarbre->equilibre = 0;
+    }
+    return newarbre;
+}
+
+//fonction d'équilibrage arbre trié nom
+int insertionAVLnom(pArbre a ,int e, h){
+    if(a==NULL){
+        *h=1;
+        return creerArbre(e);
+    }
+    
+    else if(e<a->somme){
+        a->fg=insertionAVL(a->fg, e, h);
+        *h=-*h;
+    }
+    
+    else if(e>a->somme){
+        a->fd=insertionAVL(a->fd, e, h);
+    }
+    
+    else{
+        *h= 0;
+        return a;
+    }
+    
+    if(*h!=0){
+        a->equilibre = a->equilibre + *h;
+
+        if(a->equilibre==0){
+            *h ← 0;
+        }
+        else{
+            *h ← 1
+        }
+    }
+    return a;
+}
+
+//fonction d'équilibrage arbre trié par les distances
+int insertionAVLsomme(pArbre a ,int e, h){
+    if(a==NULL){
+        *h=1;
+        return creerArbre(e);
+    }
+    
+    else if(e<a->somme){
+        a->fg=insertionAVL(a->fg, e, h);
+        *h=-*h;
+    }
+    
+    else if(e>a->somme){
+        a->fd=insertionAVL(a->fd, e, h);
+    }
+    
+    else{
+        *h= 0;
+        return a;
+    }
+    
+    if(*h!=0){
+        a->equilibre = a->equilibre + *h;
+
+        if(a->equilibre==0){
+            *h ← 0;
+        }
+        else{
+            *h ← 1
+        }
+    }
+    return a;
+}
+
+// Fonction pour insérer un élément dans l'arbre trier en fonction des noms
+pArbre insertab2(pArbre a, char nom[50], int valeur) {
+    if (a == NULL) {
+        return creerArbre(nom, valeur);
+    }
+    int comparaison = strcmp(nom, a->nom);
+    if (comparaison < 0) {
+        a->fg = insertab2(a->fg, nom, valeur);
+    } else if (comparaison > 0) {
+        a->fd = insertab2(a->fd, nom, valeur);
+    } else {
+        // Même nom, additionner la valeur
+        a->somme += valeur;
+    }
+
+    return a;
+}
+
+// Fonction pour insérer un élément dans l'arbre trier en fonction des distances
+pArbre insertab2(pArbre a, char nom[50], int valeur) {
+    if (a == NULL) {
+        return creerArbre(nom, valeur);
+    }
+    int comparaison = strcmp(nom, a->nom);
+    if (comparaison < 0) {
+        a->fg = insertab2(a->fg, nom, valeur);
+    } else if (comparaison > 0) {
+        a->fd = insertab2(a->fd, nom, valeur);
+    } else {
+        // Même nom, additionner la valeur
+        a->somme += valeur;
+    }
+
+    return a;
+}
+
+
+pArbre traitement() {
+    FILE* fichier = fopen("d2.txt", "r");
+
+    if (fichier == NULL) {
+        fprintf(stderr, "Erreur : Impossible d'ouvrir le fichier.\n");
+        exit(1);
+    }
+
+    pArbre arbre = NULL;
+    char ligne[100];
+
+    while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
+    printf("Ligne lue : %s\n", ligne); // Ajoutez cette ligne pour déboguer
+
+    char champs1[50];
+    int champs2;
+    if (sscanf(ligne, "%*d;%49[^;];%d", champs1, &champs2) == 2) {
+        arbre = insertab2(arbre, champs1, champs2);
+    } else {
+        fprintf(stderr, "Erreur de lecture de la ligne : %s", ligne);
+    }
+}
+
+    fclose(fichier);
+    return arbre;
+}
+
+
+int traiter(pArbre a, int compteur) {
+    FILE* fichier = fopen("d1.txt", "w"); 
+
+    if (fichier != NULL) {
+        pArbre transfert = a;
+        int i = 0;
+        while (transfert != NULL && i < 10) {
+            fprintf(fichier, "%s\n", transfert->nom);
+            transfert = transfert->fd; 
+            i++;
+        }
+        
+        fclose(fichier);
+        compteur++;
+    }
+
+    return compteur;
+}
+
+
+void parcoursPrefixeinv(pArbre a, int compteur) {
+    if (a != NULL) {
+        parcoursPrefixeinv(a->fd, compteur);
+        parcoursPrefixeinv(a->fg, compteur);
+        compteur = traiter(a, compteur);
+    }
+    if(a==NULL){
+        printf("erreur");
+    }
+}
+int main() {
+    pArbre arbre = NULL;
+    int compteur=0;
+    FILE *fichier; 
+    arbre=traitement();
+    parcoursPrefixeinv(arbre,compteur);
+    
+    
+    return 0;
+}
+
