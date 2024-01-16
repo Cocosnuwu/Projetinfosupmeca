@@ -3,6 +3,11 @@ mkdir projet (+on déplace data.csv dans projet)
 
 Traitement D1 : 
 cut -d';' -f1,6 data.csv | sort -r -d -t';' -k2 > d1.txt
+ou
+awk '{print $1 $6}' FS=";" data.csv
+/
+awk -F; '{print $1 $6}' data.csv
+
 --> faire script shell qui incrémente si c'est même personne && si pas même route id
 --> tq : awk -F";" '{ ID[$2][$1] } END { for (name in ID) print name, lenght(ID[name]) }' d1.txt
 --> (marche pas ??)
