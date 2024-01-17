@@ -8,7 +8,7 @@ awk '{print $1 $6}' FS=";" data.csv
 /
 awk -F; '{print $1 $6}' data.csv
 
---> faire script shell qui incrémente si c'est même personne && si pas même route id
+--> faire script shell qui incrémente si c'est même personne && si pas même route id => en shell ? avec commande awk, condition et tableau ?
 --> tq : awk -F";" '{ ID[$2][$1] } END { for (name in ID) print name, lenght(ID[name]) }' d1.txt
 --> (marche pas ??)
 
