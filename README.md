@@ -10,6 +10,7 @@ Corentin :
 
 5)Le fichier texte a de nombreuses erreurs comme par exemple le fait qu'il n'efface pas toujours le contenu ou qu'il met les 15 premiers au lieu des 10 surement un problème du à la convertion en avl...
 
+6) Enfin le programme fonctionne en l plus qu'à faire le coté shell et j'en aurais terminé avec cette partie.
 
 Athyna : s'occupe de toutes les commandes relatives au shell et au script
 Timothé : aide sur le code en c en lui même pour l'adapter a des nouveaux fichiers
