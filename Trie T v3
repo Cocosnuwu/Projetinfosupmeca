@@ -1,0 +1,184 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Arbre {
+    int idroute;
+    int idstep;
+    char ville[50];         //ville de départ 
+    int equilibre;
+    int compteurd;           //compteur de départ à cette ville
+    int compteurtot;       //compteur de trajet passant par la ville
+    struct Arbre* fg;
+    struct Arbre* fd;
+} Arbre;
+
+typedef Arbre* pArbre;
+
+// fonction pour créer un nouvel élément dans l'arbre
+pArbre creerArbre(int routeid,int stepid,char ville[50]) {
+    pArbre newarbre = (pArbre)malloc(sizeof(Arbre));
+    if (newarbre != NULL) {
+        strcpy(newarbre->ville, ville);
+        newarbre->idstep=stepid;
+        newarbre->equilibre = 0;
+        newarbre->idroute = routeid;
+        newarbre->compteurd = 0;
+        newarbre->compteurtot=0;
+        newarbre->fg = NULL;
+        newarbre->fd = NULL;
+    }
+    return newarbre;
+}
+
+//recyclage de l'insertion somme du trie L pour qu'elle trie en fonction des villes de départ et d'arrivée
+//spécialisation de la fonction pour comparaison avec ville départ pour le cas particulier de la ville de départ
+pArbre insertionAVLvilled(pArbre a, int routeid,int stepid,char villed[50],int* h) {
+    if (a == NULL) {
+        *h = 1;
+        return creerArbre(routeid,stepid,villed);
+    }
+    
+  
+    int r=strcmp(villed, a->ville);
+  
+    if (r<0) {
+        a->fg = insertionAVLvilled(a->fg, routeid,stepid,villed, h);
+        a->equilibre -= *h;
+    }
+      
+    if (r>0) {
+        a->fd = insertionAVLvilled(a->fd, routeid,stepid,villed, h);
+        a->equilibre += *h;
+    }
+  
+    if(r==0) {
+        // Si le trajet existe déjà, additionne la distance
+        if(routeid==a->idroute){
+          return a;
+        }
+        if(routeid!=a->idroute){
+          a->compteurd ++;
+          a->compteurtot ++;
+          *h = 0;
+          return a;
+        }
+    }
+
+    if (*h != 0) {
+        a->equilibre = a->equilibre + *h;
+
+        if (a->equilibre == 0) {
+            *h = 0;
+        } else {
+            *h = 1;
+        }
+    }
+    return a;
+}
+
+pArbre insertionAVLvillef(pArbre a, int routeid,int stepid,char villef[50], int* h) {
+    if (a == NULL) {
+        *h = 1;
+        return creerArbre(routeid,stepid,villef);
+    }
+    int r=strcmp(villef, a->ville);
+    if (r<0) {
+        a->fg = insertionAVLvilled(a->fg, routeid,stepid,villef, h);
+        a->equilibre -= *h;
+    }
+
+    if (r>0) {
+        a->fd = insertionAVLvilled(a->fd, routeid,stepid,villef, h);
+        a->equilibre += *h;
+    }
+    if(r==0) {
+        // Si le trajet existe déjà, additionne la distance
+        if(routeid==a->idroute){
+          return a;
+        }
+        if(routeid!=a->idroute){
+          a->compteurtot ++;
+          *h = 0;
+          return a;
+        }
+
+    }
+
+    if (*h != 0) {
+        a->equilibre = a->equilibre + *h;
+
+        if (a->equilibre == 0) {
+            *h = 0;
+        } else {
+            *h = 1;
+        }
+    }
+    return a;
+}
+//il faudra faire une simple liste qui parcoure tout l'arbre et qui met les adresses des villes dans un tableau
+void ecrireDansFichier(pArbre a, FILE* fichier) {      //parcours infixe inversée pour écrire dans le fichier
+    if (a != NULL) {
+        ecrireDansFichier(a->fd, fichier);
+        fprintf(fichier, "%s;%f;%s\n", a->ville[50], a->somme, a->nom);
+        ecrireDansFichier(a->fg, fichier);
+    }
+}
+
+void recuperer10PlusGrandes(pArbre a, int* compteur, FILE* fichier) {
+    if (a != NULL && *compteur < 10) {
+        recuperer10PlusGrandes(a->fd, compteur, fichier);
+        if (*compteur < 10) {
+            fprintf(fichier, "%d;%f;%s\n", a->idroute, a->somme, a->nom);
+            (*compteur)++;
+        }
+        recuperer10PlusGrandes(a->fg, compteur, fichier);
+    }
+}
+
+pArbre traitement2() {
+    int h = 0;
+    int* ph = &h;
+    pArbre arbre = NULL;
+    FILE* fichier = fopen("d2.txt", "r");
+
+    if (fichier != NULL) {
+        char ligne[100];
+        while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
+            int routeid;
+            int stepid;
+            float distance;
+            char villed[50];
+            char villef[50];
+            sscanf(ligne, "%d;%d;%s;%[^\n]", &routeid, &stepid, villed, villef);
+            if(stepid==1){ //traitement du cas particulier où la ville de départ est la même que celle d'arrivée
+              arbre = insertionAVLvilled(arbre, routeid, stepid, villed, ph);
+            }
+            arbre = insertionAVLvillef(arbre, routeid, stepid, villef, ph);
+        }
+        fclose(fichier);
+    }
+    return arbre;
+}
+
+int main() {
+    pArbre arbre = NULL;
+    int compteur = 0;
+
+    arbre = traitement2();
+
+    FILE* fichier = fopen("d2.txt", "w");  // Ouvrir en mode écriture pour écraser le contenu existant
+
+    if (fichier != NULL) {
+        // Écrire les 10 distances les plus grandes avec le même identifiant de trajet agrégé
+        recuperer10PlusGrandes(arbre, &compteur, fichier);
+
+        fclose(fichier);
+    } else {
+        printf("Erreur lors de l'ouverture du fichier en mode écriture.\n");
+    }
+
+    free(arbre);  // Libérer la mémoire de l'arbre
+
+    return 0;
+}
