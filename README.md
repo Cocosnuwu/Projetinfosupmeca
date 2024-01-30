@@ -25,4 +25,6 @@ Timothé :
 
 1)aide sur le code en c en lui même pour l'adapter a des nouveaux fichiers
 
-2)Trie D2
+2)Tri D2
+
+3) Mise en place de la partie vérification des arguments en script shell (traitements / fichiers)
