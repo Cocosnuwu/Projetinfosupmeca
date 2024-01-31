@@ -57,10 +57,10 @@ cp $1 $data_folder/
 
 # Vérification de l'exécutable C
 if [ ! -f $progc_folder/code_c ]; then
-    echo "Compilation du programme C en cours..."
+    echo "Compilation du code C en cours..."
     (cd $progc_folder && make)
     if [ $? -ne 0 ]; then
-        echo "Erreur lors de la compilation du programme C."
+        echo "Erreur lors de la compilation du code C."
         exit 4
     fi
 fi
@@ -68,7 +68,7 @@ fi
 # Fonction pour créer le graphique avec GnuPlot
 function create_graph() {
     gnuplot -e "input='$1'" -e "output='$2'" gnuplot_script.gp
-    echo "Le graphique a été créé et sauvegardé dans le dossier images."
+    echo "Graphique sauvegardé avec succès."
 }
 
 # Traitements en fonction des options
