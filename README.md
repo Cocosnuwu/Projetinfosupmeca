@@ -27,4 +27,5 @@ Timothé :
 
 2)Tri D2
 
-3)Mise en place de la partie vérification des arguments en script shell (traitements / fichiers)
+3) - Création fichier script.sh
+- Mise en place de la partie vérification des arguments en script shell (traitements / fichiers)
