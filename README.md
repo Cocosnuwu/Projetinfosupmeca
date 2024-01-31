@@ -14,6 +14,8 @@ Corentin :
 
 7) Trie L est terminée et T aussi
 
+8) Trie D2 et L validés
+
 Athyna : 
 
 1)s'occupe de toutes les commandes relatives au shell et au script
