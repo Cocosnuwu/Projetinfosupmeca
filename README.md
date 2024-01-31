@@ -29,3 +29,5 @@ Timothé :
 
 3) - Création fichier script.sh
 - Mise en place de la partie vérification des arguments en script shell (traitements / fichiers)
+
+- Appel du programme C ainsi que des graphiques gnuplot
