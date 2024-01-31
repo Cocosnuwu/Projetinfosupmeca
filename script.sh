@@ -37,5 +37,20 @@ for arg in ${@:2}; do
     esac
 done
 
-# si on arrive ici, les arguments sont valides
-# continuer le script avec les appels au programme C et à GnuPlot
+
+# Chemins des dossiers
+data_folder="data"
+progc_folder="progc"
+temp_folder="temp"
+images_folder="images"
+demo_folder="demo"
+
+# Création des dossiers s'ils n'existent pas
+mkdir -p $data_folder
+mkdir -p $progc_folder
+mkdir -p $temp_folder
+mkdir -p $images_folder
+mkdir -p $demo_folder
+
+# Copie du fichier CSV dans le dossier 'data'
+cp $1 $data_folder/
