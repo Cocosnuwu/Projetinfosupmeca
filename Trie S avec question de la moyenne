@@ -1,0 +1,154 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Arbre {
+    int idroute;
+    char nom[50];
+    float distance;
+    float moyenne;
+    float max;
+    float min;
+    int equilibre;
+    struct Arbre* fg;
+    struct Arbre* fd;
+} Arbre;
+
+typedef Arbre* pArbre;
+
+pArbre creerArbre(int routeid, float distance, char nom[50]) {
+    pArbre newarbre = (pArbre)malloc(sizeof(Arbre));
+    if (newarbre != NULL) {
+        strcpy(newarbre->nom, nom);
+        newarbre->equilibre = 0;
+        newarbre->idroute = routeid;
+        newarbre->distance= distance;
+        newarbre->max=distance;
+        newarbre->min=distance;
+        newarbre->fg = NULL;
+        newarbre->fd = NULL;
+    }
+    return newarbre;
+}
+
+pArbre insertionAVLdistance(pArbre a, int routeid, float distance, char nom[50], int* h) {
+    if (a == NULL) {
+        *h = 1;
+        return creerArbre(routeid, distance, nom);
+    } else if (routeid < a->idroute) {
+        a->fg = insertionAVLdistance(a->fg, routeid, distance, nom, h);
+        a->equilibre -= *h;
+    } else if (routeid > a->idroute) {
+        a->fd = insertionAVLdistance(a->fd, routeid, distance, nom, h);
+        a->equilibre += *h;
+    } else {
+        a->distance+= distance;
+        if(distance<a->min){
+            a->min=distance;
+        }
+        if(distance>a->max){
+            a->max=distance;
+        }
+        
+        *h = 0;
+        return a;
+    }
+
+    if (*h != 0) {
+        a->equilibre = a->equilibre + *h;
+
+        if (a->equilibre == 0) {
+            *h = 0;
+        } else {
+            *h = 1;
+        }
+    }
+    return a;
+}
+
+void ecrireDansFichier(pArbre a, FILE* fichier) {
+    if (a != NULL) {
+        ecrireDansFichier(a->fd, fichier);
+        fprintf(fichier, "%d;%f\n", a->idroute, a->distance);
+        ecrireDansFichier(a->fg, fichier);
+    }
+}
+
+void recuptrajet(pArbre a, pArbre plusTrajet[50]) {
+    if (a != NULL) {
+        for (int i = 0; i < 50; i++) {
+            if (plusTrajet[i] == NULL || a->distance> plusTrajet[i]->distance) {
+                for (int j = 49; j > i; j--) {
+                    plusTrajet[j] = plusTrajet[j - 1];
+                }
+                plusTrajet[i] = a;
+                break;
+            }
+        }
+        recuptrajet(a->fg, plusTrajet);
+        recuptrajet(a->fd, plusTrajet);
+    }
+}
+
+void triedecroissantrouteid(pArbre plusTrajet[50]) {
+    pArbre temp;
+    int n = 50;
+
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (plusTrajet[j]->idroute < plusTrajet[j + 1]->idroute) {
+                temp = plusTrajet[j];
+                plusTrajet[j] = plusTrajet[j + 1];
+                plusTrajet[j + 1] = temp;
+            }
+        }
+    }
+}
+
+
+pArbre traitement2() {
+    int h = 0;
+    int* ph = &h;
+    pArbre arbre = NULL;
+    FILE* fichier = fopen("L.txt", "r");
+
+    if (fichier != NULL) {
+        char ligne[100];
+        while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
+            int routeid;
+            float distance;
+            char nom[50];
+            sscanf(ligne, "%d;%f;%[^\n]", &routeid, &distance, nom);
+            arbre = insertionAVLdistance(arbre, routeid, distance, nom, ph);
+        }
+        fclose(fichier);
+    }
+    return arbre;
+}
+
+int main() {
+    pArbre arbre = NULL;
+    pArbre trajetsMax[10] = {NULL};
+
+    arbre = traitement2();
+
+    recuptrajet(arbre, trajetsMax);
+    triedecroissantrouteid(trajetsMax);
+
+    FILE* fichier = fopen("d2.txt", "w");
+
+    if (fichier != NULL) {
+        for (int i = 0; i < 10; i++) {
+            if (trajetsMax[i] != NULL) {
+                fprintf(fichier, "%d;%f\n", trajetsMax[i]->idroute, trajetsMax[i]->distance);
+            }
+        }
+        fclose(fichier);
+    } else {
+        printf("Erreur lors de l'ouverture du fichier en mode écriture.\n");
+    }
+
+    free(arbre);
+
+    return 0;
+}
