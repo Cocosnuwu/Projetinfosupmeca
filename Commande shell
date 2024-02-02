@@ -1,5 +1,4 @@
-mkdir projet (+on déplace data.csv dans projet)
-(cd projet)
+
 
 Traitement D1 : 
 cut -d';' -f1,6 data.csv | sort -r -d -t';' -k2 > d1.txt
@@ -29,15 +28,6 @@ Mariya SANCHEZ;166
 
 Traitement D2 :
 cut -d';' -f5,6 data.csv > d2.txt
-
-awk -F";" '{sum[$2] += $1} END {for (name in sum) print name " : " sum[name]}' d2.txt > D2.txt
-sort -r -n -t':' -k2 D2.txt | head -10
-(ok mais on veut add pour réels car résultats pas les mêmes mais noms ok)
-
-
-
-
-
 
 
 
@@ -189,5 +179,3 @@ Traitement S :
 cut -d';' -f1,2,5 data.csv > smin.txt
 cut -d';' -f1,2,5 data.csv > smax.txt
 cut -d';' -f1,2,5 data.csv > smoy.txt
-
-awk
