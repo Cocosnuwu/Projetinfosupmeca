@@ -1,0 +1,18 @@
+#!/bin/bash
+
+tail -n +2 data.csv | cut -d';' -f1,5,6 > L.txt
+gcc -o tri_L tri_L.c
+./tri_L
+sort -r -n -k1,1 temp.txt > temp1.txt
+
+gnuplot -persist HistoL.gp
+
+mv tri_L temp
+mv temp.txt temp
+mv temp1.txt temp
+mv Histo_L.png images
+xdg-open images/Histo_L.png
+rm -r temp/*
+
+
+exit
