@@ -3,15 +3,26 @@
 tail -n +2 data.csv | cut -d';' -f1,5,6 > L.txt
 gcc -o tri_L tri_L.c
 ./tri_L
+
+mv  L.txt temp
+
+# Tri du premier fichier temporaire temp, dans l'ordre décroissant vers temp1
 sort -r -n -k1,1 temp.txt > temp1.txt
 
+# Traçage de l'histogramme L 
 gnuplot -persist HistoL.gp
 
+# Déplacement des fichiers temporaires vers le dossier temp
 mv tri_L temp
 mv temp.txt temp
 mv temp1.txt temp
+
 mv Histo_L.png images
+
+# Ouverture du fichier image
 xdg-open images/Histo_L.png
+
+# Nettoyage du dossier temporaire
 rm -r temp/*
 
 
