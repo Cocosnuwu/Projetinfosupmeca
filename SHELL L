@@ -1,16 +1,22 @@
 #!/bin/bash
 
+loading="Traitement en cours..."
+done="Traitement réussi !"
+
 tail -n +2 data.csv | cut -d';' -f1,5,6 > L.txt
 gcc -o tri_L tri_L.c
+echo "${loading}"
 ./tri_L
 
 mv  L.txt temp
 
-# Tri du premier fichier temporaire temp, dans l'ordre décroissant vers temp1
+# tri du premier fichier temporaire temp, dans l'ordre décroissant vers temp1
 sort -r -n -k1,1 temp.txt > temp1.txt
 
-# Traçage de l'histogramme L 
+# traçage de l'histogramme L 
 gnuplot -persist HistoL.gp
+
+echo "${done}"
 
 # Déplacement des fichiers temporaires vers le dossier temp
 mv tri_L temp
