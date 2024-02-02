@@ -1,0 +1,156 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Arbre {
+    int idroute;
+    int idstep;
+    char ville[50];
+    int compteurd;
+    int compteurtot;
+    struct Arbre* fg;
+    struct Arbre* fd;
+} Arbre;
+
+typedef Arbre* pArbre;
+
+pArbre creerArbre(int routeid, int stepid, char ville[50]) {
+    pArbre newarbre = (pArbre)malloc(sizeof(Arbre));
+    if (newarbre != NULL) {
+        strcpy(newarbre->ville, ville);
+        newarbre->idstep = stepid;
+        newarbre->idroute = routeid;
+        newarbre->compteurd = 0; // Initialisation à 0
+        newarbre->compteurtot = 1; // Initialisation à 1
+        newarbre->fg = NULL;
+        newarbre->fd = NULL;
+    }
+    return newarbre;
+}
+
+int compareVilles(const void *a, const void *b) {
+    return strcmp((*(pArbre*)a)->ville, (*(pArbre*)b)->ville);
+}
+
+void ecrireTriDansFichier(pArbre plusVille[10], const char* nomFichier) {
+    FILE* fichier_resultats = fopen(nomFichier, "w");
+
+    if (fichier_resultats != NULL) {
+        for (int i = 0; i < 10; i++) {
+            if (plusVille[i] != NULL) {
+                fprintf(fichier_resultats, "%s;%d;%d\n", plusVille[i]->ville, plusVille[i]->compteurtot, plusVille[i]->compteurd);
+            }
+        }
+
+        fclose(fichier_resultats);
+    } else {
+        printf("Erreur lors de l'ouverture du fichier en mode écriture.\n");
+    }
+}
+
+pArbre insertionAVL(pArbre a, int routeid, int stepid, char ville[50]) {
+    if (a == NULL) {
+        return creerArbre(routeid, stepid, ville);
+    }
+
+    int r = strcmp(ville, a->ville);
+    if (r < 0) {
+        a->fg = insertionAVL(a->fg, routeid, stepid, ville);
+    } 
+    else if (r > 0) {
+        a->fd = insertionAVL(a->fd, routeid, stepid, ville);
+    }
+    else {
+        if (stepid == 1) {
+            a->compteurd++;
+        }
+        a->compteurtot++;
+        return a; // Retourner le nœud actuel
+    }
+
+    return a;
+}
+
+void recuperer10PlusTrajets(pArbre a, pArbre plusVille[10]) {
+    if (a != NULL) {
+        // Comparer avec les 10 villes ayant le plus grand nombre total de trajets
+        for (int i = 0; i < 10; i++) {
+            if (plusVille[i] == NULL || a->compteurtot > plusVille[i]->compteurtot) {
+                // Remplacer la ville actuelle si elle a un total de trajets plus élevé
+                for (int j = 9; j > i; j--) {
+                    plusVille[j] = plusVille[j - 1];
+                }
+                plusVille[i] = a;
+                break;
+            }
+        }
+
+        // Parcourir les fils gauche et droit
+        recuperer10PlusTrajets(a->fg, plusVille);
+        recuperer10PlusTrajets(a->fd, plusVille);
+    }
+}
+
+void triealphab(pArbre plusVille[10]) {
+    pArbre temp;
+    int n = 10;
+
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (strcmp(plusVille[j]->ville, plusVille[j + 1]->ville) > 0) {
+                // Échange si l'ordre alphabétique n'est pas respecté
+                temp = plusVille[j];
+                plusVille[j] = plusVille[j + 1];
+                plusVille[j + 1] = temp;
+            }
+        }
+    }
+}
+
+pArbre traitement() {
+    pArbre arbre = NULL;
+    FILE* fichier = fopen("d2.txt", "r");
+
+    if (fichier != NULL) {
+        char ligne[100];
+        while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
+            int routeid, stepid;
+            char villed[50], villef[50];
+            sscanf(ligne, "%d;%d;%49[^;];%49[^\n]", &routeid, &stepid, villed, villef);     // Lecture de la ligne du fichier
+            if (stepid == 1) {                                                                // Cas particulier pour la première ligne
+                arbre = insertionAVL(arbre, routeid, stepid, villed);
+            }
+            int c = strcmp(villed, villef);
+            if (c != 0) {                                                                      // Cas particulier pour les trajets dans la ville qui ne sont pas comptabilisés car la ville de départ 
+                arbre = insertionAVL(arbre, routeid, stepid, villef);                          // est la même que celle d'arrivée
+            }
+        }
+        fclose(fichier);
+    }
+
+    return arbre;
+}
+
+int main() {
+    pArbre arbre = NULL;
+    pArbre plusVille[10];
+
+    // Initialiser le tableau plusVille à NULL
+    for (int i = 0; i < 10; i++) {
+        plusVille[i] = NULL;
+    }
+
+    arbre = traitement();
+
+    // Utiliser le tri bulle pour trier le tableau plusVille par ordre alphabétique des villes
+    recuperer10PlusTrajets(arbre, plusVille);
+    triealphab(plusVille);
+
+    // Écrire les résultats triés dans le fichier
+    ecrireTriDansFichier(plusVille, "resultats_tries.txt");
+
+    // Libérer la mémoire allouée pour les nœuds de l'arbre
+    // Vous pouvez implémenter une fonction pour cela si nécessaire
+
+    return 0;
+}
