@@ -1,0 +1,14 @@
+#!/bin/bash
+
+tail -n +2 data.csv | cut -d';' -f1,5,6  > L.txt
+gcc -o trid2 trid2.c
+./trid2
+
+gnuplot -persist HistoD2.gp
+mv d2.png images
+cd images
+convert -rotate 90 d2.png d2.png
+xdg-open d2.png
+cd ..
+
+exit
