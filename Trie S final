@@ -1,0 +1,133 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TRAJETS 50
+
+typedef struct Arbre {
+    int idroute;
+    int stepid;
+    char nom[50];
+    float distance;
+    struct Arbre* fg;
+    struct Arbre* fd;
+} Arbre;
+
+typedef Arbre* pArbre;
+
+pArbre creerArbre(int routeid, int stepid, float distance, char nom[50]) {
+    pArbre newarbre = (pArbre)malloc(sizeof(Arbre));
+    if (newarbre != NULL) {
+        newarbre->idroute = routeid;
+        newarbre->stepid = stepid;
+        strcpy(newarbre->nom, nom);
+        newarbre->distance = distance;
+        newarbre->fg = NULL;
+        newarbre->fd = NULL;
+    }
+    return newarbre;
+}
+
+pArbre insertionAVLdistance(pArbre a, int routeid, int stepid, float distance, char nom[50], int* h) {
+    if (a == NULL) {
+        *h = 1;
+        return creerArbre(routeid, stepid, distance, nom);
+    } else if (routeid < a->idroute) {
+        a->fg = insertionAVLdistance(a->fg, routeid, stepid, distance, nom, h);
+    } else if (routeid > a->idroute) {
+        a->fd = insertionAVLdistance(a->fd, routeid, stepid, distance, nom, h);
+    } else {
+        a->distance += distance;
+        *h = 0;
+        return a;
+    }
+
+    if (*h != 0) {
+        if (routeid < a->idroute) {
+            a->stepid = a->fg->stepid + 1;
+        } else {
+            a->stepid = a->fd->stepid + 1;
+        }
+
+        *h = 1;
+    }
+
+    return a;
+}
+
+void recupTrajetsMax(pArbre a, pArbre plusTrajet[MAX_TRAJETS], int* index) {
+    if (a != NULL) {
+        for (int i = 0; i < MAX_TRAJETS; i++) {
+            if (plusTrajet[i] == NULL || a->distance > plusTrajet[i]->distance) {
+                for (int j = MAX_TRAJETS - 1; j > i; j--) {
+                    plusTrajet[j] = plusTrajet[j - 1];
+                }
+                plusTrajet[i] = a;
+                (*index)++;
+                break;
+            }
+        }
+        recupTrajetsMax(a->fg, plusTrajet, index);
+        recupTrajetsMax(a->fd, plusTrajet, index);
+    }
+}
+
+void trieDecroissantDistance(pArbre plusTrajet[MAX_TRAJETS], int index) {
+    pArbre temp;
+    for (int i = 0; i < index - 1; i++) {
+        for (int j = 0; j < index - i - 1; j++) {
+            if (plusTrajet[j]->distance < plusTrajet[j + 1]->distance) {
+                temp = plusTrajet[j];
+                plusTrajet[j] = plusTrajet[j + 1];
+                plusTrajet[j + 1] = temp;
+            }
+        }
+    }
+}
+
+pArbre traitement2() {
+    int h = 0;
+    int* ph = &h;
+    pArbre arbre = NULL;
+    FILE* fichier = fopen("L.txt", "r");
+
+    if (fichier != NULL) {
+        char ligne[100];
+        while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
+            int routeid, stepid;
+            float distance;
+            char nom[50];
+            sscanf(ligne, "%d;%d;%f;%[^\n]", &routeid, &stepid, &distance, nom);
+            arbre = insertionAVLdistance(arbre, routeid, stepid, distance, nom, ph);
+        }
+        fclose(fichier);
+    }
+    return arbre;
+}
+
+int main() {
+    pArbre arbre = NULL;
+    pArbre trajetsMax[MAX_TRAJETS] = {NULL};
+    int index = 0;
+
+    arbre = traitement2();
+
+    recupTrajetsMax(arbre, trajetsMax, &index);
+    trieDecroissantDistance(trajetsMax, index);
+
+    FILE* fichier = fopen("d2.txt", "w");
+
+    if (fichier != NULL) {
+        for (int i = 0; i < 10 && i < index; i++) {
+            float moyenne = trajetsMax[i]->distance / trajetsMax[i]->stepid;
+            fprintf(fichier, "%d;%f;%f;%f\n", trajetsMax[i]->idroute, trajetsMax[i]->distance, moyenne, trajetsMax[i]->distance);
+        }
+        fclose(fichier);
+    } else {
+        printf("Erreur lors de l'ouverture du fichier en mode écriture.\n");
+    }
+
+    free(arbre);
+
+    return 0;
+}
