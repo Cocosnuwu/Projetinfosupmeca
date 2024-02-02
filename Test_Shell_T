@@ -1,0 +1,17 @@
+#!/bin/bash
+
+loading="Traitement en cours..."
+done="Traitement réussi !"
+
+echo "${loading}"
+
+# Triage
+tail -n +2 data.csv | cut -d';' -f1,3,4 > t.txt
+gcc -o tri_T tri_T.c
+./tri_T
+
+
+
+
+echo "${done}"
+exit
